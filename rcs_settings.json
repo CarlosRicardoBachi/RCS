@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "preview": {
+    "thumbs": {
+      "size_px": 64,
+      "render_scale": 2,
+      "stroke_thick": 0,
+      "outline_thick": 0,
+      "theme": ""
+    }
+  },
+  "ui": {
+    "canvas": {
+      "zoom_after_fit": 1.0,
+      "start_anchor": "canvas_origin",
+      "default_canvas_mm": [
+        500.0,
+        300.0
+      ],
+      "zoom_range": 1.0,
+      "scroll_h": true,
+      "scroll_v": true,
+      "start_view": {
+        "center_canvas": [
+          152.587890625,
+          97.265625
+        ],
+        "zoom": 4.096
+      },
+      "scroll_h_policy": "on"
+    }
+  }
+}

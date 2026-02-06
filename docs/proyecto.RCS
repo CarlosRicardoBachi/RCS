@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "canvas_mm": [
+    100.0,
+    100.0
+  ],
+  "grid": {
+    "size_mm": 5.0,
+    "snap_on": false
+  },
+  "components_root": "componentes",
+  "objects": []
+}

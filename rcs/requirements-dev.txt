@@ -1,0 +1,6 @@
+# Project: RusticCreadorSvg (RCS)
+# Version: 0.3.0
+# Date: 2026-01-16
+# Notes: dependencias para tests.
+
+pytest>=7.0

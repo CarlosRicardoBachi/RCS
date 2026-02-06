@@ -1,0 +1,1 @@
+Ver `ai/INSTRUCCIONES_GPT.md` (contrato actualizado + flujo de docs).
