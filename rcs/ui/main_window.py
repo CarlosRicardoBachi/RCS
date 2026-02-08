@@ -1,12 +1,16 @@
-# HOTFIX v0.3.10.2.78
-# Improved GMPR import error handling
+"""
+RCS - Main Window (STUB)
 
-from PySide6.QtWidgets import QMessageBox
+Estado:
+- La UI gráfica aún no está implementada.
+- Este archivo existe solo para evitar errores de import
+  mientras el proyecto está en fase de núcleo / pipeline.
 
-def handle_gmpr_import_error(self, error):
-    self.logger.error(f"GMPR import failed due to missing symbol: {error}")
-    QMessageBox.critical(
-        self,
-        "GMPR Import Error",
-        "Error interno al importar GMPR.\nRevisar logs."
-    )
+Roadmap:
+- Este stub será reemplazado por la implementación real
+  cuando se habilite la UI.
+"""
+
+class MainWindow:
+    def __init__(self):
+        print("[RCS] MainWindow stub inicializada (UI no implementada aún)")
