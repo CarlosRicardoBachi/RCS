@@ -97,118 +97,87 @@ def _gmpr_rot_deg(t: Dict[str, Any]) -> float:
     return _f(t.get("rot_deg"), 0.0)
 
 
-def _gmpr_raster_transform_to_rcs_transform(
-    t: dict[str, Any],
-    vb_x: float = 0.0,
-    vb_y: float = 0.0,
-    mm_per_u_x: float = 1.0,
-    mm_per_u_y: float = 1.0,
-    abs_mm_per_px_x: float | None = None,
-    abs_mm_per_px_y: float | None = None,
-) -> Transform:
-    """Convertir transform de GMPR (raster) a Transform de RCS.
+def _gmpr_raster_transform_to_rcs_transform(t: dict) -> Transform:
+    """Convert a GMPR raster transform dict to the internal Transform.
 
-    Observación clave (por archivos reales de GMPR):
-    - x/y ya vienen en **mm** del canvas (no en unidades de viewBox).
-    - sx/sy son **factores de escala adimensionales** (multiplican el scale base
-      mm_per_px que usa RCS para mostrar rasters). Campo legacy: s (uniforme).
+    GMPR keys commonly seen:
+      - x, y (in the same world-space as the embedded SVG's viewBox box; for most files this is mm-like units)
+      - sx, sy (scale factors applied over the base px->mm mapping in CanvasView; 1.0 = 96dpi physical size)
+      - rot or rot_deg (degrees)
+      - flip_h / flip_v (newer) or flip_x / flip_y (older exports)
 
-    Por compatibilidad, esta función conserva parámetros legacy (vb/mm_per_u/abs_mm_per_px),
-    pero la conversión efectiva prioriza la convención anterior.
+    This function is intentionally tolerant: unknown keys are ignored.
     """
-    # Posición (mm en canvas)
-    try:
-        x_mm = float(t.get("x", 0.0) or 0.0)
-    except Exception:
-        x_mm = 0.0
-    try:
-        y_mm = float(t.get("y", 0.0) or 0.0)
-    except Exception:
-        y_mm = 0.0
+    x = float(t.get("x", 0.0) or 0.0)
+    y = float(t.get("y", 0.0) or 0.0)
 
-    # Escala (factor adimensional sobre el scale base mm_per_px)
-    try:
-        s = float(t.get("s", 1.0) or 1.0)
-    except Exception:
-        s = 1.0
-    try:
-        sx = float(t.get("sx", 1.0) or 1.0)
-    except Exception:
-        sx = 1.0
-    try:
-        sy = float(t.get("sy", 1.0) or 1.0)
-    except Exception:
-        sy = 1.0
-
-    scale_x = sx * s
-    scale_y = sy * s
-
-    # Rotación (grados)
-    try:
-        rot_deg = float(t.get("rot_deg", t.get("rot", 0.0)) or 0.0)
-    except Exception:
-        rot_deg = 0.0
-
-    flip_x = bool(t.get("flip_h", False))
-    flip_y = bool(t.get("flip_v", False))
+    # Prefer explicit sx/sy; fall back to a uniform 's' if present.
+    sx = t.get("sx", None)
+    sy = t.get("sy", None)
+    if sx is None or sy is None:
+        s = t.get("s", 1.0)
+        try:
+            s = float(s)
+        except Exception:
+            s = 1.0
+        if sx is None:
+            sx = s
+        if sy is None:
+            sy = s
 
     try:
-        opacity = float(t.get("opacity", 1.0) or 1.0)
+        sx_f = float(sx)
     except Exception:
-        opacity = 1.0
-    opacity = max(0.0, min(1.0, opacity))
+        sx_f = 1.0
+    try:
+        sy_f = float(sy)
+    except Exception:
+        sy_f = 1.0
 
-    lock_aspect = bool(t.get("lock_aspect", True))
+    rot = t.get("rot", t.get("rot_deg", 0.0))
+    try:
+        rot_f = float(rot)
+    except Exception:
+        rot_f = 0.0
+
+    flip_h = bool(t.get("flip_h", t.get("flip_x", False)))
+    flip_v = bool(t.get("flip_v", t.get("flip_y", False)))
 
     return Transform(
-        x=x_mm,
-        y=y_mm,
-        scale_x=scale_x,
-        scale_y=scale_y,
-        rotation_deg=rot_deg,
-        flip_x=flip_x,
-        flip_y=flip_y,
-        opacity=opacity,
-        lock_aspect=lock_aspect,
+        x_mm=x,
+        y_mm=y,
+        scale_x=sx_f,
+        scale_y=sy_f,
+        rotation_deg=rot_f,
+        flip_h=flip_h,
+        flip_v=flip_v,
     )
 
-def _update_gmpr_raster_transform_dict(dst: dict[str, Any], tr: Transform) -> None:
-    """Actualizar in-place el dict de transform (GMPR) con valores desde Transform (RCS).
 
-    Convención:
-    - Guardamos x/y en mm.
-    - Guardamos sx/sy como factores adimensionales (o s si el dict original no tenía sx/sy).
+def _update_gmpr_raster_transform_dict(dst: dict, tr: Transform) -> None:
+    """In-place update of a GMPR raster transform dict from an internal Transform.
+
+    We write the canonical GMPR keys (x,y,sx,sy,rot,flip_h,flip_v). If legacy keys
+    (flip_x/flip_y or rot_deg) exist, we keep them consistent too.
     """
-    dst["x"] = float(tr.x)
-    dst["y"] = float(tr.y)
+    dst["x"] = float(tr.x_mm)
+    dst["y"] = float(tr.y_mm)
+    dst["sx"] = float(tr.scale_x)
+    dst["sy"] = float(tr.scale_y)
 
-    # Mantener el "formato" original si es posible
-    has_sx_sy = ("sx" in dst) or ("sy" in dst)
-    has_s = ("s" in dst)
+    # Rotation: GMPR commonly uses "rot" (degrees). Keep rot_deg in sync if present.
+    dst["rot"] = float(tr.rotation_deg)
+    if "rot_deg" in dst:
+        dst["rot_deg"] = float(tr.rotation_deg)
 
-    sx = float(tr.scale_x)
-    sy = float(tr.scale_y)
+    # Flips: internal uses flip_h/flip_v. Keep legacy flip_x/flip_y in sync if present.
+    dst["flip_h"] = bool(tr.flip_h)
+    dst["flip_v"] = bool(tr.flip_v)
+    if "flip_x" in dst:
+        dst["flip_x"] = bool(tr.flip_h)
+    if "flip_y" in dst:
+        dst["flip_y"] = bool(tr.flip_v)
 
-    if has_sx_sy or not has_s:
-        # Preferimos sx/sy (y neutralizamos s si existía)
-        dst["sx"] = sx
-        dst["sy"] = sy
-        if has_s:
-            dst["s"] = 1.0
-    else:
-        # Solo 's' legacy (uniforme)
-        if tr.lock_aspect:
-            dst["s"] = sx
-        else:
-            dst["s"] = (sx + sy) * 0.5
-
-    dst["rot_deg"] = float(tr.rotation_deg)
-    dst["flip_h"] = bool(tr.flip_x)
-    dst["flip_v"] = bool(tr.flip_y)
-    dst["opacity"] = max(0.0, min(1.0, float(tr.opacity)))
-
-    if "lock_aspect" in dst:
-        dst["lock_aspect"] = bool(tr.lock_aspect)
 
 def load_gmpr_json(path: str | Path) -> dict[str, Any]:
     p = Path(path)
@@ -376,7 +345,40 @@ def gmpr_to_project(bundle: dict[str, Any], *, gmpr_path: str | Path) -> Project
 
     # Rasters
     raster_png_by_uid: dict[str, bytes] = {}
+
     objects: list[SceneObject] = []
+
+    # Base SVG: make it a SceneObject so it becomes visible (and can be used as reference for alignment).
+    # Prefer the materialized embedded SVG file if present; otherwise fall back to the referenced svg_path.
+    base_svg_path: Path | None = None
+    try:
+        if prj.gmpr_svg_tmp_path:
+            p = Path(prj.gmpr_svg_tmp_path)
+            if p.exists():
+                base_svg_path = p
+    except Exception:
+        base_svg_path = None
+    if base_svg_path is None:
+        try:
+            if svg_path is not None:
+                p = Path(svg_path)
+                if p.exists():
+                    base_svg_path = p
+        except Exception:
+            base_svg_path = None
+
+    if base_svg_path is not None:
+        objects.append(
+            SceneObject(
+                id="SVG_BASE",
+                type=ObjectType.SVG,
+                source=str(base_svg_path),
+                transform=Transform(),
+                z=0,
+            )
+        )
+    else:
+        logger.warning("GMPR import: no base SVG available (embedded or referenced).")
 
     # Variante A: raster definido dentro de objects[] (como en Rustic Creator actual)
     #   objects[].custom_kind="raster" y objects[].raster_meta.png_base64
