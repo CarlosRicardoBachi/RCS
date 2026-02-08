@@ -1,4 +1,0 @@
-1) Importar GMPR => no crash (flip_x)
-2) SVG_BASE visible
-3) Raster visible
-4) Guardar/reabrir (opcional)

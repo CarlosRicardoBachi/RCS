@@ -8,7 +8,7 @@ APP_NAME = "RusticCreadorSvg"
 APP_SHORT = "RCS"
 
 # App semantic version (must match patch notes / docs).
-APP_VERSION = "0.3.10.2.77"
+APP_VERSION = "0.3.10.2.69"
 # Project schema version used for .RCS project files.
 # NOTE: must be int because `rcs.core.models.Project` compares it as integer.
 SCHEMA_VERSION = 1

@@ -1,23 +1,5 @@
 # CHANGELOG — RusticCreadorSvg (RCS)
 
-
-## 0.3.10.2.76 — 2026-02-08
-- HOTFIX: GMPR Import deja de crashear (se elimina `meta=` al crear `SceneObject`).
-- HOTFIX: Raster GMPR: `x/y` se interpretan como mm del canvas; `sx/sy` se toman como factor adimensional (respeta legacy `s`).
-- HOTFIX: SVG embebido (base) vuelve a ser visible en tema oscuro: se inyecta CSS (stroke claro + fill none) y se sube la opacidad del preview base.
-
-## 0.3.10.2.75 — 2026-02-08
-
-- HOTFIX: GMPR import: el SVG embebido se inserta como objeto real (`GMPR_BASE_SVG`) para que sea visible y seleccionable.
-- HOTFIX: GMPR import: el raster ahora convierte `x/y` desde coordenadas del `viewBox` (incluye offset min-x/min-y) a mm, y `sx/sy` desde (uu/px) a factores coherentes con `RCS_MM_PER_PX`.
-- HOTFIX: compatibilidad: `CanvasView` conserva el renderizador Qt (`_render_svg_qt`) evitando crash al insertar SVG.
-
-## 0.3.10.2.74 — 2026-02-07
-
-- HOTFIX: GMPR import vuelve a mostrar el **SVG base embebido** (preview) de forma estable.
-- HOTFIX: GMPR import restaura **raster transform** con conversión robusta (sx/sy units/px → mm/px@96DPI → scale interno).
-- HOTFIX: Inserción de SVG desde biblioteca ya no crashea: se restaura el renderer interno (`CanvasView._render_svg_qt`).
-
 ## 0.3.10.2.69 — 2026-02-05
 
 - HOTFIX: GMPR base SVG (preview): render a escala real del lienzo (mm), evitando el “preview 240px” que desalineaba rasters.

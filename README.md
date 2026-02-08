@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # RusticCreadorSvg (RCS)
 
 Editor 2D orientado a **vectores para corte láser/CNC** (llaveros, placas, ensamblajes), basado en **Python + PySide6/Qt**.
@@ -35,7 +34,3 @@ pip install -r requirements-dev.txt
 
 ---
 > Nota: las notas de hotfix/versiones viven en `docs/patches/` (no en este README).
-=======
-# RCS
-Rustic Creator System
->>>>>>> e74b9559091b0ec96156e731de50d1e6e514d606

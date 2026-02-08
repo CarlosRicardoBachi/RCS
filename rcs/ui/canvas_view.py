@@ -4256,9 +4256,7 @@ class CanvasView(QGraphicsView):
 
         renderer = QSvgRenderer(QByteArray(svg_bytes)) if svg_bytes else QSvgRenderer(str(svg_path))
         if not renderer.isValid():
-            svg_bytes = Path(svg_path).read_bytes()
-            svg_bytes = self._inject_rcs_gmpr_base_css(svg_bytes, stroke_user=0.20)
-            renderer = QSvgRenderer(QByteArray(svg_bytes))
+            renderer = QSvgRenderer(str(svg_path))
 
         img = QImage(px_w, px_h, QImage.Format_ARGB32_Premultiplied)
         img.fill(Qt.transparent)
@@ -4274,47 +4272,6 @@ class CanvasView(QGraphicsView):
         # mm representados por 1 px (del pixmap renderizado).
         mm_per_px_rendered = cw / float(px_w) if px_w > 0 else float(self._mm_per_px)
         return pm, float(mm_per_px_rendered)
-
-
-    def _inject_rcs_gmpr_base_css(
-        self,
-        svg_bytes: bytes,
-        stroke_user: float = 0.20,
-        stroke_color: str = "#D0D0D0",
-        fill: str = "none",
-    ) -> bytes:
-        """Inyectar CSS para que el SVG base de GMPR sea visible en fondo oscuro.
-
-        Forzamos stroke claro, fill controlado y un stroke-width mínimo.
-        """
-        try:
-            s = svg_bytes.decode("utf-8", errors="ignore")
-        except Exception:
-            return svg_bytes
-
-        if "<svg" not in s:
-            return svg_bytes
-
-        style = (
-            "<style id=\"rcs-gmpr-base-style\">"
-            "path, line, polyline, polygon, rect, circle, ellipse {"
-            f" stroke: {stroke_color} !important;"
-            f" fill: {fill} !important;"
-            f" stroke-width: {stroke_user} !important;"
-            "}"
-            "</style>"
-        )
-
-        # Insertar el <style> apenas después del tag <svg ...>
-        try:
-            m = re.search(r"<svg[^>]*>", s, flags=re.IGNORECASE)
-            if not m:
-                return svg_bytes
-            insert_at = m.end()
-            s2 = s[:insert_at] + style + s[insert_at:]
-            return s2.encode("utf-8")
-        except Exception:
-            return svg_bytes
 
     def _inject_rcs_preview_css(self, svg_bytes: bytes, *, stroke_user: float) -> bytes:
         """Inyecta/reemplaza un <style id=\"rcs-preview-style\"> para forzar stroke-width en previews.

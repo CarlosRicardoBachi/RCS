@@ -1,6 +1,5 @@
 # Patches index (RCS)
 
-- **0.3.10.2.74** — HOTFIX GMPR import: base SVG visible + raster align + restore SVG insert preview. (docs/patches/0.3/0.3.10.2.74/0.3.10.2.74_HOTFIX_GMPR_IMPORT_SVG_PREVIEW_STABILITY.md)
 - 0.3.10.2.69 → HOTFIX GMPR Base SVG (preview a escala + selección exclusiva)
   - Nota: docs/patches/0.3/0.3.10.2.69/0.3.10.2.69_HOTFIX_GMPR_BaseSVG_Scale_Selectable.md
   - Checklist: docs/checklist/CHECKLIST_0.3.10.2.69_HOTFIX_GMPR_BaseSVG_Scale_Selectable.md
@@ -127,13 +126,6 @@
 > Índice cronológico (más nuevo arriba). Cada patch tiene su patch note + checklist.
 
 ---
-
-## 0.3.10.2.76 — 2026-02-08
-- HOTFIX GMPR Import: elimina crash por `SceneObject(meta=...)`, interpreta `x/y` como mm del canvas y `sx/sy` como factor (no mm/px), y vuelve visible el SVG embebido en fondo oscuro (stroke claro + opacity mayor).
-
-## 0.3.10.2.75 — 2026-02-08
-
-- HOTFIX: GMPR: SVG embebido visible (objeto real) + raster alineado (viewBox→mm).
 
 ## 0.3.10.2.x
 
