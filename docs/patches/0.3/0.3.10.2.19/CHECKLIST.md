@@ -1,3 +1,0 @@
-- [ ] RCS abre sin errores
-- [ ] Insertar SVG desde biblioteca no arroja NameError
-- [ ] No se tocaron thumbnails ni estilos de preview (solo import)

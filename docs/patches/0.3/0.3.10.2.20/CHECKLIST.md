@@ -1,4 +1,0 @@
-- [ ] RCS abre sin errores
-- [ ] Barra muestra texto (o el estilo configurado)
-- [ ] Rotar y Escalar son fácilmente identificables
-- [ ] No se tocó la lógica de thumbnails (deben seguir perfectos)
